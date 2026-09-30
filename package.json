@@ -3,7 +3,7 @@
   "productName": "FormatImage",
   "version": "1.0.0",
   "description": "Usuwa tło ze zdjęć produktów, zmniejsza je i zapisuje jako WebP.",
-  "homepage": "https://github.com/Skiperpol/FormatImage",
+  "homepage": "https://github.com/Skiperpol/desktop-formatimage",
   "desktopName": "formatimage.desktop",
   "main": "src/main/main.js",
   "author": {
