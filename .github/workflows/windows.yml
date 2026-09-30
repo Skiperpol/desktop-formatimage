@@ -1,0 +1,55 @@
+name: Instalator Windows
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Zależności
+        run: npm ci
+
+      - name: Model AI z pamięci podręcznej
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: model-birefnet-general-lite-5600024376f5
+
+      - name: Model AI (pobranie i sprawdzenie sumy SHA-256)
+        run: npm run fetch-model
+
+      - name: Budowanie instalatora
+        run: npx electron-builder --win nsis --x64 --publish never
+
+      - name: Test spakowanej aplikacji (usuwanie tła na Windowsie)
+        shell: bash
+        env:
+          ELECTRON_RUN_AS_NODE: '1'
+        run: ./dist/win-unpacked/bez-tla.exe scripts/smoke-test.js dist/win-unpacked/resources
+
+      - name: Instalator jako artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bez-tla-Windows
+          path: dist/*.exe
+          if-no-files-found: error
+
+      - name: Wydanie na GitHubie
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" dist/*.exe --title "Bez tła ${{ github.ref_name }}" --generate-notes

@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu, nativeTheme } = require('electron');
 const { loadSettings, saveSettings } = require('./settings');
 const { expandPaths, describe, thumbnail, IMAGE_EXTENSIONS } = require('./files');
-const { findModel, MODEL_BYTES } = require('./model');
+const { findModel, MODEL } = require('./model');
 const { BatchRunner } = require('./batch');
 
 let win = null;
@@ -84,8 +84,8 @@ function registerIpc() {
     }
   });
 
-  ipcMain.handle('model:status', () => ({ ready: Boolean(findModel()), bytes: MODEL_BYTES }));
-  ipcMain.handle('app:home', () => app.getPath('home'));
+  ipcMain.handle('model:status', () => ({ ready: Boolean(findModel()), name: MODEL.name }));
+  ipcMain.handle('app:info', () => ({ home: app.getPath('home'), platform: process.platform }));
 
   ipcMain.handle('batch:start', (_e, items) => {
     if (!Array.isArray(items) || runner.running) return false;

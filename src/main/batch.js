@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { fork } = require('node:child_process');
-const { ensureModel } = require('./model');
+const { findModel } = require('./model');
 const { thumbnail } = require('./files');
 
 const WORKER_PATH = path.join(__dirname, '..', 'worker', 'worker.js');
@@ -16,7 +16,6 @@ class BatchRunner {
     this.pending = null;
     this.running = false;
     this.cancelled = false;
-    this.abort = null;
   }
 
   ensureWorker() {
@@ -26,6 +25,7 @@ class BatchRunner {
       env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
       stdio: ['ignore', 'ignore', 'ignore', 'ipc'],
       serialization: 'advanced',
+      windowsHide: true,
     });
     worker.on('message', (msg) => this.onWorkerMessage(msg));
     worker.on('error', () => worker.kill());
@@ -73,14 +73,10 @@ class BatchRunner {
     let failed = 0;
 
     try {
-      let modelPath = null;
+      let model = null;
       if (settings.removeBackground) {
-        this.abort = new AbortController();
-        modelPath = await ensureModel(
-          (received, total) => this.send({ type: 'model-download', received, total }),
-          this.abort.signal,
-        );
-        this.abort = null;
+        model = findModel();
+        if (!model) throw new Error('Brakuje pliku modelu AI. Zainstaluj aplikację ponownie.');
       }
 
       for (const item of items) {
@@ -94,7 +90,7 @@ class BatchRunner {
             quality: settings.quality,
             removeBackground: settings.removeBackground,
             overwrite: settings.overwrite,
-            modelPath,
+            model,
           });
           let thumb = null;
           try {
@@ -118,7 +114,6 @@ class BatchRunner {
       this.send({ type: 'finished', ok, failed, cancelled: this.cancelled, outputDir: settings.outputDir, fatal: this.cancelled ? null : err.message });
     } finally {
       this.running = false;
-      this.abort = null;
       if (this.cancelled) removePartials(settings.outputDir);
     }
   }
@@ -126,7 +121,6 @@ class BatchRunner {
   cancel() {
     if (!this.running) return;
     this.cancelled = true;
-    if (this.abort) this.abort.abort();
     // Model przetwarza jedno zdjęcie nawet kilkanaście sekund, więc zamiast czekać
     // zatrzymujemy proces roboczy od razu. Następne uruchomienie utworzy nowy.
     if (this.worker) this.worker.kill();

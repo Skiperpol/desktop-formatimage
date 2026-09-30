@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('api', {
   addPaths: (paths) => ipcRenderer.invoke('files:add', paths),
   thumbnail: (file) => ipcRenderer.invoke('files:thumbnail', file),
   modelStatus: () => ipcRenderer.invoke('model:status'),
-  homeDir: () => ipcRenderer.invoke('app:home'),
+  appInfo: () => ipcRenderer.invoke('app:info'),
   startBatch: (items) => ipcRenderer.invoke('batch:start', items),
   cancelBatch: () => ipcRenderer.invoke('batch:cancel'),
   openFolder: (dir) => ipcRenderer.invoke('shell:openFolder', dir),

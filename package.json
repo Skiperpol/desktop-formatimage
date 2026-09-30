@@ -10,12 +10,14 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --linux AppImage deb",
-    "dist:win": "electron-builder --win nsis"
+    "fetch-model": "node scripts/fetch-model.js",
+    "dist:win": "npm run fetch-model && electron-builder --win nsis --x64",
+    "dist:linux": "npm run fetch-model && electron-builder --linux AppImage"
   },
   "build": {
     "appId": "pl.dawid.beztla",
     "productName": "Bez tła",
+    "executableName": "bez-tla",
     "artifactName": "bez-tla-${version}.${ext}",
     "files": [
       "src/**/*",
@@ -28,8 +30,7 @@
     ],
     "linux": {
       "target": [
-        "AppImage",
-        "deb"
+        "AppImage"
       ],
       "category": "Graphics",
       "icon": "build/icon.png",
@@ -37,8 +38,40 @@
       "syncDesktopName": true
     },
     "win": {
-      "target": "nsis",
-      "icon": "build/icon.png"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "artifactName": "Bez-tla-Setup-${version}.${ext}"
+    },
+    "extraResources": [
+      {
+        "from": "models/birefnet-general-lite.onnx",
+        "to": "models/birefnet-general-lite.onnx"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bez tła",
+      "uninstallDisplayName": "Bez tła",
+      "installerLanguages": [
+        "pl_PL"
+      ],
+      "language": "1045",
+      "deleteAppDataOnUninstall": false
     }
   },
   "dependencies": {
@@ -49,5 +82,6 @@
     "@fontsource-variable/manrope": "^5.3.0",
     "electron": "^44.5.1",
     "electron-builder": "^26.15.3"
-  }
+  },
+  "license": "UNLICENSED"
 }

@@ -43,8 +43,9 @@ const state = {
   running: false,
   run: null,
   modelReady: false,
-  modelBytes: 0,
+  modelName: '',
   home: '',
+  platform: '',
 };
 
 let nextId = 1;
@@ -80,9 +81,10 @@ function splitPath(p) {
   return { name, parent };
 }
 
+// Na Linuksie i macOS katalog domowy skracamy do „~”; na Windowsie pokazujemy pełną ścieżkę.
 function tildify(p) {
   const home = state.home;
-  if (home && (p === home || p.startsWith(home + '/') || p.startsWith(home + '\\'))) return `~${p.slice(home.length)}`;
+  if (state.platform !== 'win32' && home && (p === home || p.startsWith(`${home}/`))) return `~${p.slice(home.length)}`;
   return p;
 }
 
@@ -180,9 +182,11 @@ function renderModelStatus() {
   }
   el.hidden = false;
   el.classList.toggle('is-ready', state.modelReady);
+  el.classList.toggle('is-missing', !state.modelReady);
   el.textContent = state.modelReady
     ? 'Model AI gotowy, działa bez internetu.'
-    : `Model AI (${formatBytes(state.modelBytes)}) zostanie pobrany przy pierwszym użyciu.`;
+    : 'Brakuje pliku modelu AI. Zainstaluj aplikację ponownie.';
+  el.title = state.modelReady ? `${state.modelName} (licencja MIT)` : '';
 }
 
 /* ---------- lista zdjęć ---------- */
@@ -318,7 +322,7 @@ function startBatch() {
     updateCard(item);
   }
   state.running = true;
-  state.run = { total: items.length, done: 0, failed: 0, durations: [], startedAt: 0, downloading: null };
+  state.run = { total: items.length, done: 0, failed: 0, durations: [] };
   hideNotice();
   renderList();
   renderProgress();
@@ -332,14 +336,6 @@ function renderProgress() {
     return;
   }
   els.progress.hidden = false;
-
-  if (run.downloading) {
-    const { received, total } = run.downloading;
-    els.progressLabel.textContent = 'Pobieranie modelu AI';
-    els.progressEta.textContent = `${Math.round(received / 1048576)} z ${Math.round(total / 1048576)} MB`;
-    els.barFill.style.width = `${(received / total) * 100}%`;
-    return;
-  }
 
   const finished = run.done + run.failed;
   const current = Math.min(finished + 1, run.total);
@@ -371,16 +367,7 @@ ipc.onBatchEvent((ev) => {
   const run = state.run;
 
   switch (ev.type) {
-    case 'model-download':
-      if (run) run.downloading = { received: ev.received, total: ev.total };
-      renderProgress();
-      break;
     case 'item-start':
-      if (run) run.downloading = null;
-      if (!state.modelReady && state.settings.removeBackground) {
-        state.modelReady = true;
-        renderModelStatus();
-      }
       if (item) {
         item.status = 'processing';
         item.stage = 'starting';
@@ -512,11 +499,12 @@ window.addEventListener('drop', (e) => {
 /* ---------- start ---------- */
 
 (async () => {
-  const [settings, model, home] = await Promise.all([ipc.getSettings(), ipc.modelStatus(), ipc.homeDir()]);
+  const [settings, model, info] = await Promise.all([ipc.getSettings(), ipc.modelStatus(), ipc.appInfo()]);
   state.settings = settings;
-  state.home = home;
+  state.home = info.home;
+  state.platform = info.platform;
   state.modelReady = model.ready;
-  state.modelBytes = model.bytes;
+  state.modelName = model.name;
   renderSettings();
   renderList();
 })();

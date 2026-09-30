@@ -1,9 +1,10 @@
 'use strict';
 
 // Usuwanie tła + zmniejszanie + zapis WebP.
-// Odwzorowuje rembg (sesja bria-rmbg) i zmniejszanie.py:
+// Odwzorowuje rembg (sesje birefnet-general / birefnet-general-lite) i zmniejszanie.py:
 // model dostaje obraz 1024×1024 znormalizowany średnią/odchyleniem ImageNet,
-// maska jest normalizowana min-max, a wynik zmniejszany do zadanego dłuższego boku.
+// na wynik nakładana jest sigmoida i normalizacja min-max, a zdjęcie jest
+// zmniejszane do zadanego dłuższego boku.
 //
 // Do obróbki obrazów używamy @napi-rs/image zamiast sharp: sharp na Linuksie
 // konfliktuje z biblioteką GLib, którą ładuje Electron (electron/electron#46323).
@@ -14,8 +15,6 @@ const { Transformer, FastResizeFilter, ResizeFit, JsColorType } = require('@napi
 const ort = require('onnxruntime-node');
 
 const MODEL_SIZE = 1024;
-const MEAN = [0.485, 0.456, 0.406];
-const STD = [0.229, 0.224, 0.225];
 
 let session = null;
 let sessionModelPath = null;
@@ -101,7 +100,12 @@ function fitInside(width, height, maxSize) {
   };
 }
 
-async function predictMask(img) {
+/**
+ * @param {{pixels: Buffer, width: number, height: number}} img
+ * @param {{mean: number[], std: number[], sigmoid: boolean}} spec  sposób przygotowania danych dla modelu
+ */
+async function predictMask(img, spec) {
+  const { mean, std, sigmoid } = spec;
   const rgba = await resizeRgba(img, MODEL_SIZE, MODEL_SIZE);
   const plane = MODEL_SIZE * MODEL_SIZE;
 
@@ -116,7 +120,7 @@ async function predictMask(img) {
   const input = new Float32Array(3 * plane);
   for (let p = 0; p < plane; p++) {
     for (let c = 0; c < 3; c++) {
-      input[c * plane + p] = (rgba[p * 4 + c] / max - MEAN[c]) / STD[c];
+      input[c * plane + p] = (rgba[p * 4 + c] / max - mean[c]) / std[c];
     }
   }
 
@@ -135,6 +139,7 @@ async function predictMask(img) {
   let mi = Infinity;
   let ma = -Infinity;
   for (let i = 0; i < pred.length; i++) {
+    if (sigmoid) pred[i] = 1 / (1 + Math.exp(-pred[i]));
     if (pred[i] < mi) mi = pred[i];
     if (pred[i] > ma) ma = pred[i];
   }
@@ -166,11 +171,12 @@ function uniqueOutputPath(outputDir, baseName, overwrite) {
  * @param {number} job.quality      jakość WebP 1–100
  * @param {boolean} job.removeBackground
  * @param {boolean} job.overwrite   zastępuj plik o tej samej nazwie
- * @param {string} [job.modelPath]  wymagany, gdy removeBackground = true
+ * @param {{path: string, mean: number[], std: number[], sigmoid: boolean}} [job.model]
+ *                                  model AI, wymagany gdy removeBackground = true
  * @param {(stage: string) => void} [onStage]
  */
 async function processImage(job, onStage = () => {}) {
-  const { file, outputDir, maxSize, quality, removeBackground, overwrite, modelPath } = job;
+  const { file, outputDir, maxSize, quality, removeBackground, overwrite, model } = job;
   fs.mkdirSync(outputDir, { recursive: true });
 
   const img = await decode(file);
@@ -178,12 +184,12 @@ async function processImage(job, onStage = () => {}) {
   let out;
 
   if (removeBackground) {
-    if (!session || sessionModelPath !== modelPath) {
+    if (!session || sessionModelPath !== model.path) {
       onStage('loading-model');
-      await loadSession(modelPath);
+      await loadSession(model.path);
     }
     onStage('removing');
-    const mask = await predictMask(img);
+    const mask = await predictMask(img, model);
 
     onStage('saving');
     out = await resizeRgba(img, size.width, size.height);
