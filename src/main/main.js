@@ -17,7 +17,7 @@ function createWindow() {
     height: 780,
     minWidth: 940,
     minHeight: 620,
-    title: 'Bez tła',
+    title: 'FormatImage',
     show: false,
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#15171c' : '#eceef1',
     icon: path.join(__dirname, '..', '..', 'build', 'icon.png'),

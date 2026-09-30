@@ -1,4 +1,6 @@
-# Bez tła
+# FormatImage
+
+Stworzone przez Dawid Błaszczyk.
 
 Aplikacja na Windowsa do przygotowywania zdjęć produktów do sklepu. Wrzucasz zdjęcia, klikasz jeden przycisk, a program:
 
@@ -10,7 +12,7 @@ Czyli to samo, co skrypty `usuniecie_tla.py` + `zmniejszanie.py`, tylko w jednym
 
 ## Instalacja (Windows 10/11, 64-bit)
 
-Pobierz `Bez-tla-Setup-<wersja>.exe` z zakładki **Releases** repozytorium i uruchom. Instalator nie wymaga uprawnień administratora, tworzy skrót na pulpicie i w menu Start. Model AI jest w instalatorze, więc aplikacja działa od razu i bez internetu.
+Pobierz `FormatImage-Setup-<wersja>.exe` z zakładki **Releases** repozytorium i uruchom. Instalator nie wymaga uprawnień administratora, tworzy skrót na pulpicie i w menu Start. Model AI jest w instalatorze, więc aplikacja działa od razu i bez internetu.
 
 Instalator nie jest podpisany certyfikatem, więc przy pierwszym uruchomieniu Windows SmartScreen pokaże ostrzeżenie „Nieznany wydawca”: kliknij *Więcej informacji* → *Uruchom mimo to*. Przy dystrybucji do klientów warto kupić certyfikat do podpisywania kodu.
 

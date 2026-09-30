@@ -1,0 +1,7 @@
+Copyright (c) 2026 Dawid Błaszczyk. Wszelkie prawa zastrzeżone.
+
+FormatImage jest oprogramowaniem własnościowym. Kopiowanie, rozpowszechnianie
+i modyfikowanie bez pisemnej zgody autora jest zabronione.
+
+Składniki firm trzecich (model BiRefNet, ONNX Runtime, Electron i inne) są
+objęte własnymi licencjami opisanymi w pliku THIRD_PARTY_NOTICES.md.

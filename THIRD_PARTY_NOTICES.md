@@ -1,6 +1,6 @@
 # Informacje o licencjach składników
 
-Aplikacja „Bez tła” korzysta z poniższych składników. Wszystkie są na licencjach
+Aplikacja FormatImage (© 2026 Dawid Błaszczyk) korzysta z poniższych składników. Wszystkie są na licencjach
 pozwalających na użytek komercyjny.
 
 | Składnik | Do czego służy | Licencja |

@@ -38,12 +38,12 @@ jobs:
         shell: bash
         env:
           ELECTRON_RUN_AS_NODE: '1'
-        run: ./dist/win-unpacked/bez-tla.exe scripts/smoke-test.js dist/win-unpacked/resources
+        run: ./dist/win-unpacked/FormatImage.exe scripts/smoke-test.js dist/win-unpacked/resources
 
       - name: Instalator jako artefakt
         uses: actions/upload-artifact@v4
         with:
-          name: Bez-tla-Windows
+          name: FormatImage-Windows
           path: dist/*.exe
           if-no-files-found: error
 
@@ -52,4 +52,4 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" dist/*.exe --title "Bez tła ${{ github.ref_name }}" --generate-notes
+        run: gh release create "${{ github.ref_name }}" dist/*.exe --title "FormatImage ${{ github.ref_name }}" --generate-notes

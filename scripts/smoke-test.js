@@ -31,7 +31,7 @@ function syntheticProduct(width, height) {
 }
 
 async function main() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bez-tla-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'formatimage-test-'));
   const input = path.join(dir, 'produkt.png');
   const w = 1600;
   const h = 1200;

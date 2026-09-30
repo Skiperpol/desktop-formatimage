@@ -17,7 +17,7 @@ function settingsFile() {
 }
 
 function defaultOutputDir() {
-  return path.join(app.getPath('pictures'), 'Bez tła');
+  return path.join(app.getPath('pictures'), 'FormatImage');
 }
 
 function clamp(n, min, max, fallback) {

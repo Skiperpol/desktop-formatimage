@@ -1,12 +1,14 @@
 {
-  "name": "bez-tla",
-  "productName": "Bez tła",
+  "name": "formatimage",
+  "productName": "FormatImage",
   "version": "1.0.0",
   "description": "Usuwa tło ze zdjęć produktów, zmniejsza je i zapisuje jako WebP.",
-  "homepage": "https://github.com/Skiperpol/bez-tla",
-  "desktopName": "bez-tla.desktop",
+  "homepage": "https://github.com/Skiperpol/FormatImage",
+  "desktopName": "formatimage.desktop",
   "main": "src/main/main.js",
-  "author": "Dawid",
+  "author": {
+    "name": "Dawid Błaszczyk"
+  },
   "private": true,
   "scripts": {
     "start": "electron .",
@@ -15,10 +17,10 @@
     "dist:linux": "npm run fetch-model && electron-builder --linux AppImage"
   },
   "build": {
-    "appId": "pl.dawid.beztla",
-    "productName": "Bez tła",
-    "executableName": "bez-tla",
-    "artifactName": "bez-tla-${version}.${ext}",
+    "appId": "pl.dawidblaszczyk.formatimage",
+    "productName": "FormatImage",
+    "executableName": "FormatImage",
+    "artifactName": "FormatImage-${version}.${ext}",
     "files": [
       "src/**/*",
       "build/icon.png",
@@ -34,7 +36,7 @@
       ],
       "category": "Graphics",
       "icon": "build/icon.png",
-      "maintainer": "Dawid",
+      "maintainer": "Dawid Błaszczyk",
       "syncDesktopName": true
     },
     "win": {
@@ -47,7 +49,7 @@
         }
       ],
       "icon": "build/icon.png",
-      "artifactName": "Bez-tla-Setup-${version}.${ext}"
+      "artifactName": "FormatImage-Setup-${version}.${ext}"
     },
     "extraResources": [
       {
@@ -57,6 +59,10 @@
       {
         "from": "THIRD_PARTY_NOTICES.md",
         "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
       }
     ],
     "nsis": {
@@ -65,14 +71,15 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Bez tła",
-      "uninstallDisplayName": "Bez tła",
+      "shortcutName": "FormatImage",
+      "uninstallDisplayName": "FormatImage",
       "installerLanguages": [
         "pl_PL"
       ],
       "language": "1045",
       "deleteAppDataOnUninstall": false
-    }
+    },
+    "copyright": "© 2026 Dawid Błaszczyk"
   },
   "dependencies": {
     "@napi-rs/image": "^1.15.0",
